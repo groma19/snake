@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -8,6 +9,7 @@ typedef struct {
 
 const int WIDTH = 1280, HEIGHT = 960, BOX_SIZE = 40, FONT_SIZE = 20;
 const int MAX_SNAKE_SIZE = (WIDTH / BOX_SIZE) * (HEIGHT / BOX_SIZE);
+const int BOX_NUM_WIDTH = WIDTH / BOX_SIZE, BOX_NUM_HEIGHT = HEIGHT / BOX_SIZE;
 const int INITIAL_SNAKE_SIZE = 4;
 
 int getRandomNumber(int min, int max) { return min + rand() % (max - min + 1); }
@@ -51,35 +53,36 @@ int main(void) {
   }
 
   Point direction = {1, 0};
+  Point nextDirection = direction;
   float moveTimer = 0.0f;
-  float moveInterval = 0.15f;
+  float moveInterval = 0.1f;
 
   while (!WindowShouldClose()) {
-    if (IsKeyPressed(KEY_UP) && direction.y != 1) {
-      direction = (Point){0, -1};
-    }
-    if (IsKeyPressed(KEY_DOWN) && direction.y != -1) {
-      direction = (Point){0, 1};
-    }
-    if (IsKeyPressed(KEY_LEFT) && direction.x != 1) {
-      direction = (Point){-1, 0};
-    }
-    if (IsKeyPressed(KEY_RIGHT) && direction.x != -1) {
-      direction = (Point){1, 0};
-    }
+    if (IsKeyPressed(KEY_UP) && direction.y != 1)
+      nextDirection = (Point){0, -1};
+    if (IsKeyPressed(KEY_DOWN) && direction.y != -1)
+      nextDirection = (Point){0, 1};
+    if (IsKeyPressed(KEY_LEFT) && direction.x != 1)
+      nextDirection = (Point){-1, 0};
+    if (IsKeyPressed(KEY_RIGHT) && direction.x != -1)
+      nextDirection = (Point){1, 0};
 
     float dt = GetFrameTime();
     moveTimer += dt;
 
     if (moveTimer >= moveInterval) {
       moveTimer = 0;
+      direction = nextDirection;
 
       for (int i = snakeSize - 1; i > 0; i--) {
         snake[i] = snake[i - 1];
       }
 
-      snake[0].x += direction.x;
-      snake[0].y += direction.y;
+      int newX = snake[0].x + direction.x;
+      int newY = snake[0].y + direction.y;
+
+      snake[0].x = (newX + BOX_NUM_WIDTH) % BOX_NUM_WIDTH;
+      snake[0].y = (newY + BOX_NUM_HEIGHT) % BOX_NUM_HEIGHT;
     }
 
     if (snake[0].x == apple.x && snake[0].y == apple.y) {
