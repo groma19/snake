@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -57,7 +56,9 @@ int main(void) {
   float moveTimer = 0.0f;
   float moveInterval = 0.1f;
 
-  while (!WindowShouldClose()) {
+  bool gameRunning = true;
+
+  while (!WindowShouldClose() && gameRunning) {
     if (IsKeyPressed(KEY_UP) && direction.y != 1)
       nextDirection = (Point){0, -1};
     if (IsKeyPressed(KEY_DOWN) && direction.y != -1)
@@ -83,6 +84,13 @@ int main(void) {
 
       snake[0].x = (newX + BOX_NUM_WIDTH) % BOX_NUM_WIDTH;
       snake[0].y = (newY + BOX_NUM_HEIGHT) % BOX_NUM_HEIGHT;
+    }
+
+    for (int i = 1; i < snakeSize; i++) {
+      if (snake[i].x == snake[0].x && snake[i].y == snake[0].y) {
+        gameRunning = false;
+        break;
+      }
     }
 
     if (snake[0].x == apple.x && snake[0].y == apple.y) {
