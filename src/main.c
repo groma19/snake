@@ -17,14 +17,6 @@ int getRandomNumber(int min, int max) { return min + rand() % (max - min + 1); }
 void DrawBackground(int score) {
   ClearBackground(WHITE);
 
-  for (int x = BOX_SIZE; x < WIDTH; x += BOX_SIZE) {
-    DrawLine(x, 0, x, HEIGHT, BLACK);
-  }
-
-  for (int y = BOX_SIZE; y < HEIGHT; y += BOX_SIZE) {
-    DrawLine(0, y, WIDTH, y, BLACK);
-  }
-
   const char *scoreText = TextFormat("Score: %d", score * 10);
   int textWidth = MeasureText(scoreText, FONT_SIZE);
   DrawText(scoreText, WIDTH / 2 - textWidth / 2, 10, FONT_SIZE, BLUE);
