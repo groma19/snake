@@ -30,6 +30,23 @@ typedef struct {
 
 int getRandomNumber(int min, int max) { return min + rand() % (max - min + 1); }
 
+bool appleInSnake(GameState *state) {
+  for (int i = 0; i < state->snakeSize; i++) {
+    if (state->snake[i].x == state->apple.x &&
+        state->snake[i].y == state->apple.y)
+      return true;
+  }
+
+  return false;
+}
+
+void setApplePosition(GameState *state) {
+  do {
+    state->apple.x = getRandomNumber(0, BOX_NUM_WIDTH - 1);
+    state->apple.y = getRandomNumber(0, BOX_NUM_HEIGHT - 1);
+  } while (appleInSnake(state));
+}
+
 void initState(GameState *state) {
   state->score = 0;
   state->snakeSize = INITIAL_SNAKE_SIZE;
@@ -48,8 +65,7 @@ void initState(GameState *state) {
   state->direction = (Point){1, 0};
   state->nextDirection = state->direction;
 
-  state->apple.x = getRandomNumber(0, BOX_NUM_WIDTH - 1);
-  state->apple.y = getRandomNumber(0, BOX_NUM_HEIGHT - 1);
+  setApplePosition(state);
 }
 
 void updateNextDirection(GameState *state) {
@@ -98,8 +114,7 @@ void appleEatCheck(GameState *state) {
     state->score++;
     state->snakeSize++;
 
-    state->apple.x = getRandomNumber(0, WIDTH / BOX_SIZE - 1);
-    state->apple.y = getRandomNumber(0, HEIGHT / BOX_SIZE - 1);
+    setApplePosition(state);
   }
 }
 
