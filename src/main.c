@@ -52,6 +52,57 @@ void initState(GameState *state) {
   state->apple.y = getRandomNumber(0, BOX_NUM_HEIGHT - 1);
 }
 
+void updateNextDirection(GameState *state) {
+  const bool UP = IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
+  const bool DOWN = IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
+  const bool LEFT = IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
+  const bool RIGHT = IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
+
+  if (UP && state->direction.y != 1)
+    state->nextDirection = (Point){0, -1};
+  if (DOWN && state->direction.y != -1)
+    state->nextDirection = (Point){0, 1};
+  if (LEFT && state->direction.x != 1)
+    state->nextDirection = (Point){-1, 0};
+  if (RIGHT && state->direction.x != -1)
+    state->nextDirection = (Point){1, 0};
+}
+
+void moveSnake(GameState *state) {
+  for (int i = state->snakeSize - 1; i > 0; i--) {
+    state->snake[i] = state->snake[i - 1];
+  }
+
+  int newX = state->snake[0].x + state->direction.x;
+  int newY = state->snake[0].y + state->direction.y;
+
+  state->snake[0].x = (newX + BOX_NUM_WIDTH) % BOX_NUM_WIDTH;
+  state->snake[0].y = (newY + BOX_NUM_HEIGHT) % BOX_NUM_HEIGHT;
+}
+
+void gameStopCheck(GameState *state) {
+  for (int i = 1; i < state->snakeSize; i++) {
+    if (state->snake[i].x == state->snake[0].x &&
+        state->snake[i].y == state->snake[0].y) {
+      state->gameRunning = false;
+      break;
+    }
+  }
+}
+
+void appleEatCheck(GameState *state) {
+  if (state->snake[0].x == state->apple.x &&
+      state->snake[0].y == state->apple.y) {
+    state->snake[state->snakeSize] = state->snake[state->snakeSize - 1];
+
+    state->score++;
+    state->snakeSize++;
+
+    state->apple.x = getRandomNumber(0, WIDTH / BOX_SIZE - 1);
+    state->apple.y = getRandomNumber(0, HEIGHT / BOX_SIZE - 1);
+  }
+}
+
 void drawScore(int score) {
   const char *scoreText = TextFormat("Score: %d", score * 10);
   int textWidth = MeasureText(scoreText, FONT_SIZE);
@@ -60,6 +111,27 @@ void drawScore(int score) {
 
 void drawPoint(int x, int y, Color color) {
   DrawRectangle(x * BOX_SIZE, y * BOX_SIZE, BOX_SIZE, BOX_SIZE, color);
+}
+
+void drawSnakeAndApple(GameState *state) {
+  drawPoint(state->apple.x, state->apple.y, RED);
+  for (int i = 0; i < state->snakeSize; i++) {
+    drawPoint(state->snake[i].x, state->snake[i].y, GREEN);
+  }
+}
+
+void drawGameOverScreen(GameState *state) {
+  const char *finalScore = TextFormat("Your Score: %d", state->score * 10);
+  const char *texts[] = {
+      "GAME OVER",
+      finalScore,
+      "Press ENTER to play again.",
+  };
+  for (int i = 0; i < sizeof(texts) / sizeof(texts[0]); i++) {
+    int textWidth = MeasureText(texts[i], FONT_SIZE);
+    DrawText(texts[i], WIDTH / 2 - textWidth / 2,
+             HEIGHT / 2 + FONT_SIZE * (i - 1) * 3 / 2, FONT_SIZE, BLACK);
+  }
 }
 
 int main(void) {
@@ -71,19 +143,7 @@ int main(void) {
 
   while (!WindowShouldClose()) {
     if (state.gameRunning) {
-      const bool UP = IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
-      const bool DOWN = IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
-      const bool LEFT = IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
-      const bool RIGHT = IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
-
-      if (UP && state.direction.y != 1)
-        state.nextDirection = (Point){0, -1};
-      if (DOWN && state.direction.y != -1)
-        state.nextDirection = (Point){0, 1};
-      if (LEFT && state.direction.x != 1)
-        state.nextDirection = (Point){-1, 0};
-      if (RIGHT && state.direction.x != -1)
-        state.nextDirection = (Point){1, 0};
+      updateNextDirection(&state);
 
       float dt = GetFrameTime();
       state.moveTimer += dt;
@@ -92,61 +152,23 @@ int main(void) {
         state.moveTimer -= state.moveInterval;
         state.direction = state.nextDirection;
 
-        for (int i = state.snakeSize - 1; i > 0; i--) {
-          state.snake[i] = state.snake[i - 1];
-        }
-
-        int newX = state.snake[0].x + state.direction.x;
-        int newY = state.snake[0].y + state.direction.y;
-
-        state.snake[0].x = (newX + BOX_NUM_WIDTH) % BOX_NUM_WIDTH;
-        state.snake[0].y = (newY + BOX_NUM_HEIGHT) % BOX_NUM_HEIGHT;
-
-        for (int i = 1; i < state.snakeSize; i++) {
-          if (state.snake[i].x == state.snake[0].x &&
-              state.snake[i].y == state.snake[0].y) {
-            state.gameRunning = false;
-            break;
-          }
-        }
-
-        if (state.snake[0].x == state.apple.x &&
-            state.snake[0].y == state.apple.y) {
-          state.snake[state.snakeSize] = state.snake[state.snakeSize - 1];
-
-          state.score++;
-          state.snakeSize++;
-
-          state.apple.x = getRandomNumber(0, WIDTH / BOX_SIZE - 1);
-          state.apple.y = getRandomNumber(0, HEIGHT / BOX_SIZE - 1);
-        }
+        moveSnake(&state);
+        gameStopCheck(&state);
+        appleEatCheck(&state);
       }
 
       BeginDrawing();
       ClearBackground(WHITE);
 
-      drawPoint(state.apple.x, state.apple.y, RED);
-      for (int i = 0; i < state.snakeSize; i++) {
-        drawPoint(state.snake[i].x, state.snake[i].y, GREEN);
-      }
-
+      drawSnakeAndApple(&state);
       drawScore(state.score);
+
       EndDrawing();
     } else {
       BeginDrawing();
       ClearBackground(WHITE);
 
-      const char *finalScore = TextFormat("Your Score: %d", state.score * 10);
-      const char *texts[] = {
-          "GAME OVER",
-          finalScore,
-          "Press ENTER to play again.",
-      };
-      for (int i = 0; i < sizeof(texts) / sizeof(texts[0]); i++) {
-        int textWidth = MeasureText(texts[i], FONT_SIZE);
-        DrawText(texts[i], WIDTH / 2 - textWidth / 2,
-                 HEIGHT / 2 + FONT_SIZE * (i - 1) * 3 / 2, FONT_SIZE, BLACK);
-      }
+      drawGameOverScreen(&state);
 
       EndDrawing();
 
