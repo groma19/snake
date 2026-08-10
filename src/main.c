@@ -14,13 +14,13 @@ const int INITIAL_SNAKE_SIZE = 4;
 
 int getRandomNumber(int min, int max) { return min + rand() % (max - min + 1); }
 
-void DrawScore(int score) {
+void drawScore(int score) {
   const char *scoreText = TextFormat("Score: %d", score * 10);
   int textWidth = MeasureText(scoreText, FONT_SIZE);
   DrawText(scoreText, WIDTH / 2 - textWidth / 2, 10, FONT_SIZE, BLUE);
 }
 
-void DrawPoint(int x, int y, Color color) {
+void drawPoint(int x, int y, Color color) {
   DrawRectangle(x * BOX_SIZE, y * BOX_SIZE, BOX_SIZE, BOX_SIZE, color);
 }
 
@@ -103,12 +103,12 @@ int main(void) {
       BeginDrawing();
       ClearBackground(WHITE);
 
-      DrawPoint(apple.x, apple.y, RED);
+      drawPoint(apple.x, apple.y, RED);
       for (int i = 0; i < snakeSize; i++) {
-        DrawPoint(snake[i].x, snake[i].y, GREEN);
+        drawPoint(snake[i].x, snake[i].y, GREEN);
       }
 
-      DrawScore(score);
+      drawScore(score);
       EndDrawing();
     } else {
       BeginDrawing();
