@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -59,13 +60,18 @@ int main(void) {
   bool gameRunning = true;
 
   while (!WindowShouldClose() && gameRunning) {
-    if (IsKeyPressed(KEY_UP) && direction.y != 1)
+    const bool UP = IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
+    const bool DOWN = IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
+    const bool LEFT = IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
+    const bool RIGHT = IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
+
+    if (UP && direction.y != 1)
       nextDirection = (Point){0, -1};
-    if (IsKeyPressed(KEY_DOWN) && direction.y != -1)
+    if (DOWN && direction.y != -1)
       nextDirection = (Point){0, 1};
-    if (IsKeyPressed(KEY_LEFT) && direction.x != 1)
+    if (LEFT && direction.x != 1)
       nextDirection = (Point){-1, 0};
-    if (IsKeyPressed(KEY_RIGHT) && direction.x != -1)
+    if (RIGHT && direction.x != -1)
       nextDirection = (Point){1, 0};
 
     float dt = GetFrameTime();
