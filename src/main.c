@@ -14,9 +14,7 @@ const int INITIAL_SNAKE_SIZE = 4;
 
 int getRandomNumber(int min, int max) { return min + rand() % (max - min + 1); }
 
-void DrawBackground(int score) {
-  ClearBackground(WHITE);
-
+void DrawScore(int score) {
   const char *scoreText = TextFormat("Score: %d", score * 10);
   int textWidth = MeasureText(scoreText, FONT_SIZE);
   DrawText(scoreText, WIDTH / 2 - textWidth / 2, 10, FONT_SIZE, BLUE);
@@ -103,8 +101,9 @@ int main(void) {
       }
 
       BeginDrawing();
+      ClearBackground(WHITE);
 
-      DrawBackground(score);
+      DrawScore(score);
       DrawPoint(apple.x, apple.y, RED);
       for (int i = 0; i < snakeSize; i++) {
         DrawPoint(snake[i].x, snake[i].y, GREEN);
@@ -113,8 +112,7 @@ int main(void) {
       EndDrawing();
     } else {
       BeginDrawing();
-
-      DrawBackground(score);
+      ClearBackground(WHITE);
 
       const char *finalScore = TextFormat("Your Score: %d", score * 10);
       const char *texts[] = {
@@ -129,6 +127,28 @@ int main(void) {
       }
 
       EndDrawing();
+
+      if (IsKeyPressed(KEY_ENTER)) {
+        gameRunning = true;
+        score = 0;
+        snakeSize = INITIAL_SNAKE_SIZE;
+
+        startX = WIDTH / BOX_SIZE / 2;
+        startY = HEIGHT / BOX_SIZE / 2;
+
+        for (int i = 0; i < INITIAL_SNAKE_SIZE; i++) {
+          snake[i].x = startX - i;
+          snake[i].y = startY;
+        }
+
+        direction = (Point){1, 0};
+        nextDirection = direction;
+
+        moveTimer = 0.0f;
+
+        apple.x = getRandomNumber(0, BOX_NUM_WIDTH - 1);
+        apple.y = getRandomNumber(0, BOX_NUM_HEIGHT - 1);
+      }
     }
   }
 
