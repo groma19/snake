@@ -69,7 +69,7 @@ int main(void) {
       moveTimer += dt;
 
       if (moveTimer >= moveInterval) {
-        moveTimer = 0;
+        moveTimer -= moveInterval;
         direction = nextDirection;
 
         for (int i = snakeSize - 1; i > 0; i--) {
