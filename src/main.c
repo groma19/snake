@@ -106,7 +106,8 @@ void appleEatCheck(GameState *state) {
 void drawScore(int score) {
   const char *scoreText = TextFormat("Score: %d", score * 10);
   int textWidth = MeasureText(scoreText, FONT_SIZE);
-  DrawText(scoreText, WIDTH / 2 - textWidth / 2, 10, FONT_SIZE, BLUE);
+  DrawText(scoreText, WIDTH / 2 - textWidth / 2, 10, FONT_SIZE,
+           GetColor(0x011618FF));
 }
 
 void drawPoint(int x, int y, Color color) {
@@ -114,9 +115,9 @@ void drawPoint(int x, int y, Color color) {
 }
 
 void drawSnakeAndApple(GameState *state) {
-  drawPoint(state->apple.x, state->apple.y, RED);
+  drawPoint(state->apple.x, state->apple.y, GetColor(0xDF2C20FF));
   for (int i = 0; i < state->snakeSize; i++) {
-    drawPoint(state->snake[i].x, state->snake[i].y, GREEN);
+    drawPoint(state->snake[i].x, state->snake[i].y, GetColor(0x8B20DFFF));
   }
 }
 
@@ -130,7 +131,8 @@ void drawGameOverScreen(GameState *state) {
   for (int i = 0; i < sizeof(texts) / sizeof(texts[0]); i++) {
     int textWidth = MeasureText(texts[i], FONT_SIZE);
     DrawText(texts[i], WIDTH / 2 - textWidth / 2,
-             HEIGHT / 2 + FONT_SIZE * (i - 1) * 3 / 2, FONT_SIZE, BLACK);
+             HEIGHT / 2 + FONT_SIZE * (i - 1) * 3 / 2, FONT_SIZE,
+             GetColor(0x011618FF));
   }
 }
 
@@ -140,6 +142,8 @@ int main(void) {
 
   GameState state;
   initState(&state);
+
+  Color backgroundColor = GetColor(0x74DF20FF);
 
   while (!WindowShouldClose()) {
     if (state.gameRunning) {
@@ -158,7 +162,7 @@ int main(void) {
       }
 
       BeginDrawing();
-      ClearBackground(WHITE);
+      ClearBackground(backgroundColor);
 
       drawSnakeAndApple(&state);
       drawScore(state.score);
@@ -166,7 +170,7 @@ int main(void) {
       EndDrawing();
     } else {
       BeginDrawing();
-      ClearBackground(WHITE);
+      ClearBackground(backgroundColor);
 
       drawGameOverScreen(&state);
 
