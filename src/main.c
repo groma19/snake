@@ -81,34 +81,34 @@ int main(void) {
 
         snake[0].x = (newX + BOX_NUM_WIDTH) % BOX_NUM_WIDTH;
         snake[0].y = (newY + BOX_NUM_HEIGHT) % BOX_NUM_HEIGHT;
-      }
 
-      for (int i = 1; i < snakeSize; i++) {
-        if (snake[i].x == snake[0].x && snake[i].y == snake[0].y) {
-          gameRunning = false;
-          break;
+        for (int i = 1; i < snakeSize; i++) {
+          if (snake[i].x == snake[0].x && snake[i].y == snake[0].y) {
+            gameRunning = false;
+            break;
+          }
         }
-      }
 
-      if (snake[0].x == apple.x && snake[0].y == apple.y) {
-        snake[snakeSize] = snake[snakeSize - 1];
+        if (snake[0].x == apple.x && snake[0].y == apple.y) {
+          snake[snakeSize] = snake[snakeSize - 1];
 
-        score++;
-        snakeSize++;
+          score++;
+          snakeSize++;
 
-        apple.x = getRandomNumber(0, WIDTH / BOX_SIZE - 1);
-        apple.y = getRandomNumber(0, HEIGHT / BOX_SIZE - 1);
+          apple.x = getRandomNumber(0, WIDTH / BOX_SIZE - 1);
+          apple.y = getRandomNumber(0, HEIGHT / BOX_SIZE - 1);
+        }
       }
 
       BeginDrawing();
       ClearBackground(WHITE);
 
-      DrawScore(score);
       DrawPoint(apple.x, apple.y, RED);
       for (int i = 0; i < snakeSize; i++) {
         DrawPoint(snake[i].x, snake[i].y, GREEN);
       }
 
+      DrawScore(score);
       EndDrawing();
     } else {
       BeginDrawing();
