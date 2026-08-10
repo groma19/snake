@@ -59,65 +59,85 @@ int main(void) {
 
   bool gameRunning = true;
 
-  while (!WindowShouldClose() && gameRunning) {
-    const bool UP = IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
-    const bool DOWN = IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
-    const bool LEFT = IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
-    const bool RIGHT = IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
+  while (!WindowShouldClose()) {
+    if (gameRunning) {
+      const bool UP = IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
+      const bool DOWN = IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
+      const bool LEFT = IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
+      const bool RIGHT = IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
 
-    if (UP && direction.y != 1)
-      nextDirection = (Point){0, -1};
-    if (DOWN && direction.y != -1)
-      nextDirection = (Point){0, 1};
-    if (LEFT && direction.x != 1)
-      nextDirection = (Point){-1, 0};
-    if (RIGHT && direction.x != -1)
-      nextDirection = (Point){1, 0};
+      if (UP && direction.y != 1)
+        nextDirection = (Point){0, -1};
+      if (DOWN && direction.y != -1)
+        nextDirection = (Point){0, 1};
+      if (LEFT && direction.x != 1)
+        nextDirection = (Point){-1, 0};
+      if (RIGHT && direction.x != -1)
+        nextDirection = (Point){1, 0};
 
-    float dt = GetFrameTime();
-    moveTimer += dt;
+      float dt = GetFrameTime();
+      moveTimer += dt;
 
-    if (moveTimer >= moveInterval) {
-      moveTimer = 0;
-      direction = nextDirection;
+      if (moveTimer >= moveInterval) {
+        moveTimer = 0;
+        direction = nextDirection;
 
-      for (int i = snakeSize - 1; i > 0; i--) {
-        snake[i] = snake[i - 1];
+        for (int i = snakeSize - 1; i > 0; i--) {
+          snake[i] = snake[i - 1];
+        }
+
+        int newX = snake[0].x + direction.x;
+        int newY = snake[0].y + direction.y;
+
+        snake[0].x = (newX + BOX_NUM_WIDTH) % BOX_NUM_WIDTH;
+        snake[0].y = (newY + BOX_NUM_HEIGHT) % BOX_NUM_HEIGHT;
       }
 
-      int newX = snake[0].x + direction.x;
-      int newY = snake[0].y + direction.y;
-
-      snake[0].x = (newX + BOX_NUM_WIDTH) % BOX_NUM_WIDTH;
-      snake[0].y = (newY + BOX_NUM_HEIGHT) % BOX_NUM_HEIGHT;
-    }
-
-    for (int i = 1; i < snakeSize; i++) {
-      if (snake[i].x == snake[0].x && snake[i].y == snake[0].y) {
-        gameRunning = false;
-        break;
+      for (int i = 1; i < snakeSize; i++) {
+        if (snake[i].x == snake[0].x && snake[i].y == snake[0].y) {
+          gameRunning = false;
+          break;
+        }
       }
+
+      if (snake[0].x == apple.x && snake[0].y == apple.y) {
+        snake[snakeSize] = snake[snakeSize - 1];
+
+        score++;
+        snakeSize++;
+
+        apple.x = getRandomNumber(0, WIDTH / BOX_SIZE - 1);
+        apple.y = getRandomNumber(0, HEIGHT / BOX_SIZE - 1);
+      }
+
+      BeginDrawing();
+
+      DrawBackground(score);
+      DrawPoint(apple.x, apple.y, RED);
+      for (int i = 0; i < snakeSize; i++) {
+        DrawPoint(snake[i].x, snake[i].y, GREEN);
+      }
+
+      EndDrawing();
+    } else {
+      BeginDrawing();
+
+      DrawBackground(score);
+
+      const char *finalScore = TextFormat("Your Score: %d", score * 10);
+      const char *texts[] = {
+          "GAME OVER",
+          finalScore,
+          "Press ENTER to play again.",
+      };
+      for (int i = 0; i < sizeof(texts) / sizeof(texts[0]); i++) {
+        int textWidth = MeasureText(texts[i], FONT_SIZE);
+        DrawText(texts[i], WIDTH / 2 - textWidth / 2,
+                 HEIGHT / 2 + FONT_SIZE * (i - 1) * 3 / 2, FONT_SIZE, BLACK);
+      }
+
+      EndDrawing();
     }
-
-    if (snake[0].x == apple.x && snake[0].y == apple.y) {
-      snake[snakeSize] = snake[snakeSize - 1];
-
-      score++;
-      snakeSize++;
-
-      apple.x = getRandomNumber(0, WIDTH / BOX_SIZE - 1);
-      apple.y = getRandomNumber(0, HEIGHT / BOX_SIZE - 1);
-    }
-
-    BeginDrawing();
-
-    DrawBackground(score);
-    DrawPoint(apple.x, apple.y, RED);
-    for (int i = 0; i < snakeSize; i++) {
-      DrawPoint(snake[i].x, snake[i].y, GREEN);
-    }
-
-    EndDrawing();
   }
 
   CloseWindow();
