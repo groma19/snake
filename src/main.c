@@ -69,10 +69,10 @@ void initState(GameState *state) {
 }
 
 void updateNextDirection(GameState *state) {
-  const bool UP = IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W);
-  const bool DOWN = IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S);
-  const bool LEFT = IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
-  const bool RIGHT = IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D);
+  const bool UP = IsKeyDown(KEY_UP) || IsKeyDown(KEY_W);
+  const bool DOWN = IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S);
+  const bool LEFT = IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A);
+  const bool RIGHT = IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D);
 
   if (UP && state->direction.y != 1)
     state->nextDirection = (Point){0, -1};
